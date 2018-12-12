@@ -69,11 +69,15 @@ public class QnaService {
         return questionRepository.findAll(pageable).getContent();
     }
 
+    @Transactional
     public Answer addAnswer(User loginUser, long questionId, String contents) {
         Answer addAnswer = new Answer(loginUser, contents);
-        Question question = findById(questionId).orElseThrow(IllegalArgumentException::new);
-        question.addAnswer(addAnswer);
-        return answerRepository.save(addAnswer);
+        findById(questionId).map(question -> {
+            question.addAnswer(addAnswer);
+            return question;
+        }).orElseThrow(IllegalArgumentException::new);
+
+        return addAnswer;
     }
 
     public Answer deleteAnswer(User loginUser, long id) {

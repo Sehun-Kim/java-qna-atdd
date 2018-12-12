@@ -14,7 +14,6 @@ import support.test.BaseTest;
 
 import java.util.Optional;
 
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -89,7 +88,6 @@ public class QnaServiceTest extends BaseTest {
         Answer newAnswer = new Answer(testUser, contents);
         newAnswer.toQuestion(original);
         when(questionRepository.findById(1L)).thenReturn(Optional.of(original));
-        when(answerRepository.save(newAnswer)).thenReturn(new Answer(1L, testUser, original, contents));
 
         Answer result = qnaService.addAnswer(testUser, 1L, "contents");
         softly.assertThat(result.getWriter()).isEqualTo(testUser);
