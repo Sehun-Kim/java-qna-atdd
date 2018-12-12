@@ -28,7 +28,6 @@ public class QnaService {
 
     public Question create(User loginUser, Question question) {
         question.writeBy(loginUser);
-        logger.debug("question : {}", question);
         return questionRepository.save(question);
     }
 
@@ -39,12 +38,12 @@ public class QnaService {
     @Transactional
     public Question update(User loginUser, long id, Question updatedQuestion) {
         // TODO 수정 기능 구현
-        Question original = findById(loginUser, id);
+        Question original = findOriginalById(loginUser, id);
         original.update(updatedQuestion, loginUser);
         return questionRepository.save(original);
     }
 
-    public Question findById(User loginUser, long id) {
+    public Question findOriginalById(User loginUser, long id) {
         return questionRepository.findById(id)
                 .filter(q -> q.isOwner(loginUser))
                 .orElseThrow(UnAuthorizedException::new);
@@ -54,10 +53,8 @@ public class QnaService {
     public void deleteQuestion(User loginUser, long questionId) throws CannotDeleteException {
         // TODO 삭제 기능 구현
         try {
-            Question question = findById(loginUser, questionId);
-            logger.debug("question is deleted? : {}", question.isDeleted());
+            Question question = findOriginalById(loginUser, questionId);
             question.delete();
-            logger.debug("question is deleted? : {}", question.isDeleted());
             questionRepository.save(question);
         } catch (UnAuthorizedException e) {
             throw new CannotDeleteException("user id do not match");
@@ -73,8 +70,10 @@ public class QnaService {
     }
 
     public Answer addAnswer(User loginUser, long questionId, String contents) {
-        // TODO 답변 추가 기능 구현
-        return null;
+        Answer addAnswer = new Answer(loginUser, contents);
+        Question question = findById(questionId).orElseThrow(IllegalArgumentException::new);
+        question.addAnswer(addAnswer);
+        return answerRepository.save(addAnswer);
     }
 
     public Answer deleteAnswer(User loginUser, long id) {

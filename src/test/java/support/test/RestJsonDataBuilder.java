@@ -1,5 +1,6 @@
 package support.test;
 
+import codesquad.domain.User;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 
@@ -26,6 +27,10 @@ public class RestJsonDataBuilder {
 
     public <T> ResponseEntity<T> deleteEntity(TestRestTemplate template, Class<T> responseType) {
         return template.exchange(this.location, HttpMethod.DELETE, HttpEntity.EMPTY, responseType);
+    }
+
+    public <T> T getResource(TestRestTemplate template, Class<T> responseType) {
+        return template.getForObject(this.location, responseType);
     }
 
     private HttpEntity createHttpEntity(Object body) {

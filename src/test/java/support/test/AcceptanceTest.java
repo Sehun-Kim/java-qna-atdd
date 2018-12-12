@@ -38,16 +38,6 @@ public abstract class AcceptanceTest extends BaseTest {
         return template.withBasicAuth(loginUser.getUserId(), loginUser.getPassword());
     }
 
-    protected String createResource(String path, Object bodyPayload) {
-        ResponseEntity<String> response = template().postForEntity(path, bodyPayload, String.class);
-        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-        return response.getHeaders().getLocation().getPath();
-    }
-
-    protected <T> T getResource(String location, Class<T> responseType, User loginUser) {
-        return basicAuthTemplate(loginUser).getForObject(location, responseType);
-    }
-
     protected User defaultUser() {
         return findByUserId(DEFAULT_LOGIN_USER);
     }

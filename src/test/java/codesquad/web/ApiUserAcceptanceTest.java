@@ -12,20 +12,22 @@ import static codesquad.domain.UserTest.newUser;
 
 public class ApiUserAcceptanceTest extends AcceptanceTest {
     private static final Logger log = LoggerFactory.getLogger(ApiUserAcceptanceTest.class);
+    private static RestJsonDataBuilder restJsonDataBuilder;
 
     @Test
     public void create() throws Exception {
         User newUser = newUser("testuser1");
-        String location = createResource("/api/users", newUser);
+        restJsonDataBuilder = new RestJsonDataBuilder("/api/users");
+        restJsonDataBuilder.createEntity(template(), newUser, String.class);
 
-        User dbUser = getResource(location, User.class, newUser);
+        User dbUser = restJsonDataBuilder.getResource(basicAuthTemplate(newUser), User.class);
         softly.assertThat(dbUser).isNotNull();
     }
 
     @Test
     public void show_다른_사람() throws Exception {
         User newUser = newUser("testuser2");
-        RestJsonDataBuilder restJsonDataBuilder = new RestJsonDataBuilder("/api/users");
+        restJsonDataBuilder = new RestJsonDataBuilder("/api/users");
 
         ResponseEntity<Void> response = restJsonDataBuilder.createEntity(template(), newUser, Void.class);
         softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -37,10 +39,10 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
     @Test
     public void update() throws Exception {
         User newUser = newUser("testuser3");
-        RestJsonDataBuilder restJsonDataBuilder = new RestJsonDataBuilder("/api/users");
+        restJsonDataBuilder = new RestJsonDataBuilder("/api/users");
         ResponseEntity<Void> response = restJsonDataBuilder.createEntity(template(), newUser, Void.class);
         softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        User original = basicAuthTemplate(newUser).getForObject(restJsonDataBuilder.getLocation(), User.class);
+        User original = restJsonDataBuilder.getResource(basicAuthTemplate(newUser), User.class);
 
         User updateUser = new User
                 (original.getId(), original.getUserId(), original.getPassword(),
@@ -56,10 +58,10 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
     @Test
     public void update_no_login() throws Exception {
         User newUser = newUser("testuser4");
-        RestJsonDataBuilder restJsonDataBuilder = new RestJsonDataBuilder("/api/users");
+        restJsonDataBuilder = new RestJsonDataBuilder("/api/users");
         ResponseEntity<Void> response = restJsonDataBuilder.createEntity(template(), newUser, Void.class);
         softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        User original = basicAuthTemplate(newUser).getForObject(restJsonDataBuilder.getLocation(), User.class);
+        User original = restJsonDataBuilder.getResource(basicAuthTemplate(newUser), User.class);
 
         User updateUser = new User
                 (original.getId(), original.getUserId(), original.getPassword(),
@@ -73,7 +75,7 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
     @Test
     public void update_다른_사람() throws Exception {
         User newUser = newUser("testuser5");
-        RestJsonDataBuilder restJsonDataBuilder = new RestJsonDataBuilder("/api/users");
+        restJsonDataBuilder = new RestJsonDataBuilder("/api/users");
         ResponseEntity<Void> response = restJsonDataBuilder.createEntity(template(), newUser, Void.class);
         softly.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 

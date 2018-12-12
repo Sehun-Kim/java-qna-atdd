@@ -80,8 +80,18 @@ public class QnaServiceTest extends BaseTest {
     @Test
     public void delete_by_owner() throws CannotDeleteException {
         when(questionRepository.findById(Long.valueOf(1))).thenReturn(Optional.of(original));
-
         qnaService.deleteQuestion(testUser, 1);
+    }
 
+    @Test
+    public void add_answer() {
+        String contents = "contents";
+        Answer newAnswer = new Answer(testUser, contents);
+        newAnswer.toQuestion(original);
+        when(questionRepository.findById(1L)).thenReturn(Optional.of(original));
+        when(answerRepository.save(newAnswer)).thenReturn(new Answer(1L, testUser, original, contents));
+
+        Answer result = qnaService.addAnswer(testUser, 1L, "contents");
+        softly.assertThat(result.getWriter()).isEqualTo(testUser);
     }
 }
