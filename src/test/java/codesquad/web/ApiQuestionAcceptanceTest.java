@@ -1,10 +1,13 @@
 package codesquad.web;
 
+import codesquad.domain.DeleteHistory;
+import codesquad.domain.DeleteHistoryRepository;
 import codesquad.domain.Question;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import support.test.AcceptanceTest;
@@ -14,6 +17,9 @@ import support.test.RestJsonDataBuilder;
 public class ApiQuestionAcceptanceTest extends AcceptanceTest {
     private static final Logger logger = LoggerFactory.getLogger(ApiQuestionAcceptanceTest.class);
     private static RestJsonDataBuilder restJsonDataBuilder;
+
+    @Autowired
+    DeleteHistoryRepository deleteHistoryRepository;
 
     @Test
     public void create() {
@@ -86,6 +92,10 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
         restJsonDataBuilder = new RestJsonDataBuilder("/api/questions/2");
 
         ResponseEntity<Void> responseEntity = restJsonDataBuilder.deleteEntity(basicAuthTemplate(secondUser()), Void.class);
+        for (DeleteHistory deleteHistory : deleteHistoryRepository.findAll()) {
+            logger.debug("deleteHistory : {}", deleteHistory);
+        }
+
         softly.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
